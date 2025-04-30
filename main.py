@@ -18,15 +18,15 @@ def me(payload=Depends(decode_access_token), session: Session = Depends(get_sess
     return user
 
 
-@app.get("/me/accounts")
-def get_linked_accounts(current_user: User = Depends(get_current_user)):
-    return {
-        "steam": {
-            "id": current_user.steam_id,
-            "persona": current_user.steam_persona,
-            "avatar": current_user.steam_avatar,
-        },
-    }
+# @app.get("/me/accounts")
+# def get_linked_accounts(current_user: User = Depends(get_current_user)):
+#     return {
+#         "steam": {
+#             "id": current_user.steam_id,
+#             "persona": current_user.steam_persona,
+#             "avatar": current_user.steam_avatar,
+#         },
+#     }
 
 
 
