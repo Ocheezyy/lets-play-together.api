@@ -1,5 +1,4 @@
 from dotenv import load_dotenv
-from models import User
 from dataclasses import dataclass
 import os
 
@@ -11,9 +10,10 @@ load_dotenv()
 # BATTLE_NET_REDIRECT_URI = os.getenv("BATTLE_NET_REDIRECT_URI")
 STEAM_API_KEY = os.getenv("STEAM_API_KEY")
 STEAM_OPENID_URL = "https://steamcommunity.com/openid"
-STEAM_RETURN_URL = "http://localhost:8000/auth/steam/callback"
 AUTH_SECRET_KEY = os.getenv("AUTH_SECRET_KEY")
 DATABASE_URL = os.getenv("DATABASE_URL")
+FRONTEND_URL = os.getenv("FRONTEND_URL")
+STEAM_RETURN_URL = f"{FRONTEND_URL}/auth/steam/callback"
 
 
 @dataclass

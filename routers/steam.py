@@ -37,7 +37,7 @@ async def get_steam_friends(current_user: User = Depends(get_current_user)):
 
 
 @steam_router.get("/games")
-async def route_get_steam_games(current_user: User = Depends(get_current_user),):
+async def get_steam_games(current_user: User = Depends(get_current_user),):
     async with AsyncClient() as client:
         response = await client.get(
             f"https://api.steampowered.com/IPlayerService/GetOwnedGames/v1/?key={STEAM_API_KEY}&steamid={current_user.steam_id}&include_appinfo=true&include_played_free_games=true"

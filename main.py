@@ -1,16 +1,12 @@
-from fastapi import FastAPI, Depends
-from auth import get_current_user  # decode_access_token, get_current_user
-from db import get_session
-from models import User
-from sqlmodel import Session
+from fastapi import FastAPI
 from routers import auth, steam
 from fastapi.middleware.cors import CORSMiddleware
+from globals import FRONTEND_URL
 
 app = FastAPI()
 
 origins = [
-    "http://localhost:5173",  # Vite/React default dev server
-    # Add more origins here if needed (e.g., deployed frontend URL)
+    FRONTEND_URL
 ]
 
 app.add_middleware(

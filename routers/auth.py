@@ -8,7 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from db import get_session
 from models import User
 from auth import create_steam_jwt
-from globals import STEAM_OPENID_URL, STEAM_RETURN_URL, STEAM_API_KEY
+from globals import STEAM_OPENID_URL, STEAM_RETURN_URL, STEAM_API_KEY, FRONTEND_URL
 from helpers import get_steam_account_summary
 
 auth_router = APIRouter()
@@ -29,7 +29,7 @@ async def login_with_steam(request: Request):
     consumer = Consumer({}, MemoryStore())
     auth_request = consumer.begin(STEAM_OPENID_URL)
     redirect_url = auth_request.redirectURL(
-        realm="http://localhost:8000/",  # your backend
+        realm=FRONTEND_URL,  # your backend
         return_to=STEAM_RETURN_URL
     )
     return RedirectResponse(redirect_url)
@@ -63,10 +63,10 @@ async def steam_callback(request: Request, session: AsyncSession = Depends(get_s
             await session.commit()
 
         token = create_steam_jwt({"steam_id": steam_id})
-        redirect_url = f"http://localhost:5173/login-success/{token}"
+        redirect_url = f"{FRONTEND_URL}/login-success/{token}"
         return RedirectResponse(redirect_url)
 
-    return RedirectResponse("http://localhost:5173/login-failed")
+    return RedirectResponse(f"{FRONTEND_URL}/login-failed")
 
 
 # @auth_router.post("/unlink/{provider}")
