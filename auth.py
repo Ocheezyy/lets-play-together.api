@@ -75,7 +75,7 @@ async def get_current_user(authorization: str = Header(...), session: AsyncSessi
 
         stmt = select(User).where(User.steam_id == payload["steam_id"])
         result = await session.execute(stmt)
-        user = result.scalar().first()
+        user = result.scalars().first()
 
         if not user:
             raise HTTPException(status_code=401, detail="User not found")

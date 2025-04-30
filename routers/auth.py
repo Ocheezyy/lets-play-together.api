@@ -8,7 +8,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from db import get_session
 from models import User
 from auth import create_steam_jwt
-from globals import STEAM_OPENID_URL, STEAM_RETURN_URL
+from globals import STEAM_OPENID_URL, STEAM_RETURN_URL, STEAM_API_KEY
+from helpers import get_steam_account_summary
 
 auth_router = APIRouter()
 
@@ -31,7 +32,7 @@ async def login_with_steam(request: Request):
         realm="http://localhost:8000/",  # your backend
         return_to=STEAM_RETURN_URL
     )
-    return {"url": redirect_url}
+    return RedirectResponse(redirect_url)
 
 
 @auth_router.get("/steam/callback")
@@ -42,21 +43,27 @@ async def steam_callback(request: Request, session: AsyncSession = Depends(get_s
 
     if openid_response.status == SUCCESS:
         claimed_id = openid_response.getDisplayIdentifier()
+        # print(claimed_id)
         steam_id = claimed_id.split("/")[-1]
 
         stmt = select(User).where(User.steam_id == steam_id)
         result = await session.execute(stmt)
-        user = result.scalar_one_or_none()
+        user = result.scalars().first()
+
+        account_summary = await get_steam_account_summary(steam_id)
 
         if not user:
-            user = User(steam_id=steam_id)
+            user = User(
+                steam_id=steam_id,
+                steam_persona=account_summary.username,
+                steam_profile_url=account_summary.profile_url,
+                steam_avatar=account_summary.avatar_url
+            )
             session.add(user)
             await session.commit()
 
-        # Ideally: Generate a token (e.g., short-lived JWT or session key)
-        # For now, redirect with steam_id in query
         token = create_steam_jwt({"steam_id": steam_id})
-        redirect_url = f"http://localhost:5173/login-success?token={token}"
+        redirect_url = f"http://localhost:5173/login-success/{token}"
         return RedirectResponse(redirect_url)
 
     return RedirectResponse("http://localhost:5173/login-failed")

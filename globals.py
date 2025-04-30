@@ -1,4 +1,6 @@
 from dotenv import load_dotenv
+from models import User
+from dataclasses import dataclass
 import os
 
 load_dotenv()
@@ -12,3 +14,10 @@ STEAM_OPENID_URL = "https://steamcommunity.com/openid"
 STEAM_RETURN_URL = "http://localhost:8000/auth/steam/callback"
 AUTH_SECRET_KEY = os.getenv("AUTH_SECRET_KEY")
 DATABASE_URL = os.getenv("DATABASE_URL")
+
+
+@dataclass
+class SteamAccountSummary:
+    username: str or None
+    profile_url: str or None
+    avatar_url: str or None

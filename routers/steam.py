@@ -1,14 +1,20 @@
 from fastapi import APIRouter
 from auth import get_current_user
-from fastapi import Request, Depends, HTTPException
-from sqlalchemy.ext.asyncio import AsyncSession
-from db import get_session
+from fastapi import Depends, HTTPException
+# from sqlalchemy.ext.asyncio import AsyncSession
+# from db import get_session
 from models import User
 from httpx import AsyncClient
 from globals import STEAM_API_KEY
+from helpers import get_steam_accounts_summaries
 
 
 steam_router = APIRouter()
+
+
+@steam_router.get("/me")
+def me(user: User = Depends(get_current_user)):
+    return user
 
 
 @steam_router.get("/friends")
@@ -24,7 +30,10 @@ async def get_steam_friends(current_user: User = Depends(get_current_user)):
     if "friendslist" not in data:
         raise HTTPException(403, "Friends list may be private.")
 
-    return data["friendslist"]["friends"]
+    friends_steam_ids = [x["steamid"] for x in data["friendslist"]["friends"]]
+    friends_data = await get_steam_accounts_summaries(friends_steam_ids)
+
+    return friends_data
 
 
 @steam_router.get("/games")
