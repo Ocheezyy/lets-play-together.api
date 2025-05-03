@@ -13,7 +13,9 @@ STEAM_OPENID_URL = "https://steamcommunity.com/openid"
 AUTH_SECRET_KEY = os.getenv("AUTH_SECRET_KEY")
 DATABASE_URL = os.getenv("DATABASE_URL")
 FRONTEND_URL = os.getenv("FRONTEND_URL")
-STEAM_RETURN_URL = f"{FRONTEND_URL}/auth/steam/callback"
+API_URL = os.getenv("API_URL")
+STEAM_RETURN_URL = f"{API_URL}/auth/steam/callback"
+
 
 
 @dataclass

@@ -8,7 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from db import get_session
 from models import User
 from auth import create_steam_jwt
-from globals import STEAM_OPENID_URL, STEAM_RETURN_URL, STEAM_API_KEY, FRONTEND_URL
+from globals import STEAM_OPENID_URL, STEAM_RETURN_URL, STEAM_API_KEY, FRONTEND_URL, API_URL
 from helpers import get_steam_account_summary
 
 auth_router = APIRouter()
@@ -29,7 +29,7 @@ async def login_with_steam(request: Request):
     consumer = Consumer({}, MemoryStore())
     auth_request = consumer.begin(STEAM_OPENID_URL)
     redirect_url = auth_request.redirectURL(
-        realm=FRONTEND_URL,  # your backend
+        realm=API_URL,  # your backend
         return_to=STEAM_RETURN_URL
     )
     return RedirectResponse(redirect_url)
