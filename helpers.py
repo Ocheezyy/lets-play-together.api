@@ -1,6 +1,5 @@
 from httpx import AsyncClient
-from globals import STEAM_API_KEY
-from globals import SteamAccountSummary
+from globals import SteamAccountSummary, STEAM_API_KEY
 
 summary_url = "https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v2/"
 
@@ -44,7 +43,6 @@ async def get_steam_accounts_summaries(steam_ids: list[str]) -> list[dict]:
 
 
 async def get_steam_account_summary(steam_id: str) -> SteamAccountSummary:
-
     params = {"key": STEAM_API_KEY, "steamids": steam_id}
 
     async with AsyncClient() as client:
@@ -64,3 +62,21 @@ async def get_steam_account_summary(steam_id: str) -> SteamAccountSummary:
 
     else:
         return SteamAccountSummary(None, None, None)
+
+
+async def get_friends_steam_games(steam_ids: list[str]) -> dict[str, list[dict]]:
+    result_obj: dict[str, list] = {}
+    async with AsyncClient() as client:
+        for steam_id in steam_ids:
+            response = await client.get(
+                f"https://api.steampowered.com/IPlayerService/GetOwnedGames/v1/?key={STEAM_API_KEY}&steamid={steam_id}&include_appinfo=true&include_played_free_games=true"
+            )
+            data = response.json()
+
+            if "response" in data and "games" in data["response"]:
+                game_count: int = data["response"]["game_count"]
+                games = data["response"]["games"]
+                result_obj[steam_id] = games
+                # print(json.dumps(games, indent=2, ensure_ascii=True))
+
+    return result_obj

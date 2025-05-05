@@ -1,4 +1,8 @@
+from typing import List, Dict
+
 from fastapi import APIRouter
+from pydantic import BaseModel
+
 from auth import get_current_user
 from fastapi import Depends, HTTPException
 # from sqlalchemy.ext.asyncio import AsyncSession
@@ -6,8 +10,7 @@ from fastapi import Depends, HTTPException
 from models import User
 from httpx import AsyncClient
 from globals import STEAM_API_KEY
-from helpers import get_steam_accounts_summaries
-
+from helpers import get_steam_accounts_summaries, get_friends_steam_games
 
 steam_router = APIRouter()
 
@@ -34,6 +37,29 @@ async def get_steam_friends(current_user: User = Depends(get_current_user)):
     friends_data = await get_steam_accounts_summaries(friends_steam_ids)
 
     return friends_data
+
+
+class FriendGameInput(BaseModel):
+    steam_ids: list[str]
+
+
+class Game(BaseModel):
+    appid: int
+    name: str
+    playtime_forever: int
+    playtime_2weeks: int
+    img_icon_url: str
+
+
+class FriendGamesResponse(BaseModel):
+    games: Dict[str, List[Game]]
+
+
+@steam_router.post("/friends/games")
+async def get_steam_friends_games(friend_game_input: FriendGameInput, current_user: User = Depends(get_current_user)):
+    print(friend_game_input)
+    result = await get_friends_steam_games(friend_game_input.steam_ids)
+    return {"games": result}
 
 
 @steam_router.get("/games")
