@@ -62,10 +62,30 @@ async def get_steam_friends_games(friend_game_input: FriendGameInput, current_us
     return {"games": result}
 
 
-@steam_router.get("/games")
-async def get_steam_games(current_user: User = Depends(get_current_user),):
+@steam_router.get("/owned_games")
+async def get_steam_games(current_user: User = Depends(get_current_user), ):
+    response_obj = {
+        "game_count": 0,
+        "games": {}
+    }
     async with AsyncClient() as client:
         response = await client.get(
             f"https://api.steampowered.com/IPlayerService/GetOwnedGames/v1/?key={STEAM_API_KEY}&steamid={current_user.steam_id}&include_appinfo=true&include_played_free_games=true"
         )
-        return response.json()
+        data = response.json()
+
+    if "response" in data and "games" in data["response"]:
+        games = data["response"]["games"]
+        game_count = data["response"]["game_count"]
+        response_obj["game_count"] = game_count
+
+        for game in games:
+            response_obj["games"][game["appid"]] = game
+
+        return response_obj
+
+    raise HTTPException(403, "Profile may be private.")
+
+
+
+
